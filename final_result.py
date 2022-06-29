@@ -1,3 +1,5 @@
+import inference
+import defuzzification
 class ProvideResult(object):
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -6,4 +8,7 @@ class ProvideResult(object):
 
     @staticmethod
     def get_final_result(input_dict: dict) -> str:
-        pass
+        inference_result = inference.inference(input_dict)
+        def_string = defuzzification.defuzzification(inference_result)
+        return def_string
+
