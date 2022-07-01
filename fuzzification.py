@@ -1,6 +1,11 @@
 # a function to calculate x value in a line with two points
 def point_value(x, point_1, point_2):
-    return (point_2[0] - point_1[0]) * (x - point_1[1]) / (point_2[1] - point_1[1]) + point_1[0]
+    x1, y1 = point_1
+    x2, y2 = point_2
+    m = (y2 - y1) / (x2 - x1)
+    y = y1 + m * (x - x1)
+
+    return round(y, 2)
 
 
 # Chest Pain
@@ -56,8 +61,6 @@ def blood_pressure_fuzzification(x):
 
 
 # Cholesterol
-
-
 def cholesterol_fuzzification(x):
     def cholesterol_low(x):
         if x <= 151:
@@ -76,7 +79,7 @@ def cholesterol_fuzzification(x):
             return point_value(x, (250, 0), (215, 1))
 
     def cholesterol_high(x):
-        if 217 >= x >= 307:
+        if x <= 217 or x >= 307:
             return 0
         elif 217 < x <= 263:
             return point_value(x, (217, 0), (263, 1))
@@ -110,7 +113,8 @@ def blood_sugar_fuzzification(x):
             return 1
 
     return {
-        'very_high': blood_sugar_very_high(x)
+        'true': 1 if x >= 120 else 0,
+        'false': 1 if x < 120 else 0,
     }
 
 

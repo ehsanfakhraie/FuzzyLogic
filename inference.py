@@ -12,7 +12,7 @@ def inference(input_dict):
 
     blood_pressure = fuzzification.blood_pressure_fuzzification(int(input_dict['blood_pressure']))
 
-    ecg = fuzzification.ecg_fuzzification(int(input_dict['ecg']))
+    ecg = fuzzification.ecg_fuzzification(float(input_dict['ecg']))
 
     exercise = fuzzification.exercise_fuzzification(int(input_dict['exercise']))
 
@@ -24,7 +24,7 @@ def inference(input_dict):
 
     heart_rate = fuzzification.heart_rate_fuzzification(int(input_dict['heart_rate']))
 
-    old_peak = fuzzification.old_peak_fuzzification(int(input_dict['old_peak']))
+    old_peak = fuzzification.old_peak_fuzzification(float(input_dict['old_peak']))
 
     sex = fuzzification.sex_fuzzification(int(input_dict['sex']))
 
@@ -53,11 +53,11 @@ def inference(input_dict):
             return sex[member]
 
     results = {
-        'healthy': 0,
-        'sick_1': 0,
-        'sick_2': 0,
-        'sick_3': 0,
-        'sick_4': 0
+        'healthy': [],
+        'sick_1': [],
+        'sick_2': [],
+        'sick_3': [],
+        'sick_4': []
     }
 
     # read rules file and iterate through it
@@ -75,59 +75,37 @@ def inference(input_dict):
 
         # separate each phrase into its own list wit " IS " as separator
         phrases = [phrase.split(' IS ') for phrase in phrases]
-
+        temp_result = ''
         if len(phrases) == 1:
             # if there is only one phrase, it must be the result
             # get the result and the value of the phrase
-            result = get_item(phrases[0][0], phrases[0][1])
-            # add the result to the results dictionary
-            results[result] += 1
+            temp_result = get_item(phrases[0][0], phrases[0][1])
         elif len(phrases) == 2:
             operator = re.findall(r'(AND|OR)', line)[0]
             # if there are two phrases, there must be an operator
             # get the result and the value of the phrase
             first = get_item(phrases[0][0], phrases[0][1])
+            print(phrases[0][0], phrases[0][1], first)
             # get the value of the second phrase
             second = get_item(phrases[1][0], phrases[1][1])
+            print(phrases[1][0], phrases[1][1], second)
             # if the operator is AND, the result must be the same as the value
-            temp_result = ''
             if operator == 'AND':
                 temp_result = min(first, second)
             # if the operator is OR, the result must be greater than the value
             elif operator == 'OR':
                 temp_result = max(first, second)
 
-            results[result] = max(results[result], temp_result)
+        print(line, result, temp_result)
+        results[result].append(temp_result)
     file.close()
 
-    # for rule in file:
-    #     rule = (rule.replace('(', '')).replace(')', '')
-    #     start = rule.index('IF') + 3
-    #     end = rule.index('THEN')
-    #     if_clause = rule[start: end - 1].split(' ')
-    #     start = end + 5
-    #     end = rule.index(';')
-    #     then_clause = rule[start: end].split(' ')
-    #     result = 0
-    #     if len(if_clause) == 3:
-    #         # print('1', if_clause[0], if_clause[2])
-    #         result = get_item(if_clause[0], if_clause[2])
-    #     else:  # len = 7
-    #         # print('2', if_clause[3])
-    #         # print('3', if_clause[0], if_clause[2])
-    #         # print('4', if_clause[4], if_clause[6])
-    #         operator = if_clause[3]
-    #         x = get_item(if_clause[0], if_clause[2])
-    #         y = get_item(if_clause[4], if_clause[6])
-    #         if operator == 'AND':
-    #             result = min(x, y)
-    #         else:  # operator = 'OR'
-    #             result = max(x, y)
-    #     # print(i, then_clause)
-    #     results[then_clause[2]] = max(results[then_clause[2]], result)
-    #     i += 1
-    #     if i == RULE_NUMBER:
-    #         break
-
-    # print(results)
-    return results
+    final_r = {
+        'healthy': max(results['healthy']),
+        'sick_1': max(results['sick_1']),
+        'sick_2': max(results['sick_2']),
+        'sick_3': max(results['sick_3']),
+        'sick_4': max(results['sick_4'])
+    }
+    print(final_r)
+    return final_r
